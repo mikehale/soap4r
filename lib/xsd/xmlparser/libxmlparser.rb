@@ -25,9 +25,8 @@ class LibXMLParser < XSD::XMLParser::Parser
     end
     # XMLParser passes a String in utf-8.
     @charset = 'utf-8'
-    @parser = XML::SaxParser.new
+    @parser = XML::SaxParser.string(string)
     @parser.callbacks = self
-    @parser.string = string
     @parser.parse
   end
 
@@ -38,75 +37,58 @@ class LibXMLParser < XSD::XMLParser::Parser
     'quot' => '"',
     'apos' => '\''
   }
-
-  #def on_internal_subset(name, external_id, system_id)
-  #  nil
-  #end
-
-  #def on_is_standalone()
-  #  nil
-  #end
-
-  #def on_has_internal_subset()
-  #  nil
-  #end
-
-  #def on_has_external_subset()
-  #  nil
-  #end
-
-  #def on_start_document()
-  #  nil
-  #end
-
-  #def on_end_document()
-  #  nil
-  #end
-
-  def on_start_element(name, attr_hash)
-    start_element(name, attr_hash)
-  end
-
-  def on_end_element(name)
-    end_element(name)
-  end
-
-  def on_reference(name)
-    characters(ENTITY_REF_MAP[name])
+  
+  def on_cdata_block(cdata)
+    characters(cdata)
   end
 
   def on_characters(chars)
     characters(chars)
   end
 
-  #def on_processing_instruction(target, data)
-  #  nil
-  #end
-
   #def on_comment(msg)
-  #  nil
+  #end
+  
+  # def on_end_document()
+  # end
+
+  def on_end_element_ns(name, prefix, uri)
+    end_element(name)
+  end
+
+  def on_error
+    raise ParseError.new(msg)
+  end
+
+  # def on_external_subset(name, external_id, system_id)
+  # end
+  
+  #def on_has_external_subset()
+  #end
+  
+  #def on_has_internal_subset()
   #end
 
-  def on_parser_warning(msg)
-    warn(msg)
+  #def on_internal_subset(name, external_id, system_id)
+  #end
+
+  #def on_is_standalone()
+  #end
+
+  #def on_processing_instruction(target, data)
+  #end
+
+  def on_reference(name)
+    characters(ENTITY_REF_MAP[name])
   end
 
-  def on_parser_error(msg)
-    raise ParseError.new(msg)
-  end
+  #def on_start_document()
+  #end
 
-  def on_parser_fatal_error(msg)
-    raise ParseError.new(msg)
+  def on_start_element_ns (name, attributes, prefix, uri, namespaces)
+    start_element(name, attributes)
   end
-
-  def on_cdata_block(cdata)
-    characters(cdata)
-  end
-
-  def on_external_subset(name, external_id, system_id)
-    nil
-  end
-
+  
   add_factory(self)
 end
 
